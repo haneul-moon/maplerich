@@ -455,6 +455,23 @@ body {font-size:12.5px;font-weight:560;line-height:1.42;color:#22242a;}
 .drop-picker-option img{width:34px;height:34px}
 .drop-foot{padding-top:14px;border-top:1px solid #e6e8ec}
 @media(max-width:680px){.drop-dialog{padding:18px 14px}.drop-entry{grid-template-columns:34px 65px minmax(110px,1fr) 26px;gap:6px}.drop-entry .drop-price{grid-column:3;grid-row:2}.drop-entry .drop-remove{grid-column:4;grid-row:1}.drop-picker-menu{width:min(280px,calc(100vw - 24px))}}
+
+/* maplerich monthly-dashboard fix 2026-10 */
+.memo-char-portrait .live{transform:none!important;transform-origin:center center!important}
+.memo-char-portrait img{object-fit:contain!important;object-position:center center!important}
+.earning-periods{display:grid;grid-template-columns:minmax(0,1fr);gap:13px}
+.earning-period{min-width:0;border:1px solid #e5e6eb;border-radius:12px;padding:12px;background:#fff}
+.earning-period--month{background:#fffcf7;border-color:#ecd9b9}
+.earning-period-title{font-size:13px;font-weight:800;color:#2d3441;margin-bottom:10px}
+.earning-period--month .earning-period-title{color:#906319}
+.earning-period .earning-tile{margin:8px 0;padding:11px}
+.earning-period .earning-tile .v{font-size:18px}
+.earning-period .earning-equation{gap:3px;margin:12px 0}
+.earning-period .earning-term{padding:8px 5px;min-width:0}
+.earning-period .earning-term .k{font-size:10px}
+.earning-period .earning-term strong{font-size:12px;overflow-wrap:anywhere}
+.earning-period .earning-progress-head{font-size:11px;gap:8px}
+.earning-period--month .earning-progress>span{background:#c99540}
 </style></head><body><main class="shell">
 <header class="app-header"><nav class="view-tabs" aria-label="관리 화면"><button class="view-tab is-current" id="tab-boss" type="button" data-view="boss" aria-pressed="true"><span aria-hidden="true">🔮</span> 보스 수익</button><button class="view-tab" id="tab-memo" type="button" data-view="memo" aria-pressed="false"><span aria-hidden="true">▤</span> 메모</button></nav><span class="app-header-note">보스와 메모를 캐릭터별로 관리해요</span></header>
 <div class="cols" id="boss-view">
@@ -469,7 +486,7 @@ body {font-size:12.5px;font-weight:560;line-height:1.42;color:#22242a;}
 <section class="panel boss-panel"><div class="boss-head"><div class="panel-index">02 보스 <span class="sr-only" id="slot-status"></span></div><div class="boss-switches"><button class="switch" type="button" data-filter="all">전체</button><button class="switch" type="button" data-filter="chosen">선택</button><button class="switch" type="button" data-filter="month">월간</button><button class="circle-btn" type="button" id="reset" title="샘플 상태 초기화" style="width:25px;height:25px">↻</button></div></div>
 <div class="boss-grid-header"><span>보스</span><span>난이도</span><span>파티원</span><span>내 결정석 수익</span><span>클리어 여부</span></div><div id="bossrows"></div><div class="bottomline">보스별 금액: 사용자가 제공한 가격표 기준 · 실시간 연동 아님</div></section>
 </div><aside class="panel earnings-panel" aria-label="주간 수익 및 진행 현황">
- <div class="earnings-heading"><span class="panel-index">04 수익 대시보드</span><strong>이번 주 수익 현황</strong></div>
+ <div class="earnings-heading"><span class="panel-index">04 수익 대시보드</span><strong>주간 · 월간 수익 현황</strong></div>
  <div id="earnings-summary"></div>
  
  <div id="earnings-characters"></div>
@@ -670,15 +687,33 @@ function renderItemRegister(){
 function renderEarnings(){
  const root=document.getElementById('earnings-summary');if(!root)return;
  const ids=characters.map((_,i)=>i).filter(i=>statInclude[i]);
- const total=ids.reduce((s,i)=>s+weeklyIds(i).length,0);
- const done=ids.reduce((s,i)=>s+weeklyIds(i).filter(id=>selections[i][id]?.done).length,0);
- const expected=ids.reduce((s,i)=>s+income(i,false),0);
- const earned=ids.reduce((s,i)=>s+realized(i,false),0);
- const sales=dropSales(ids),percent=total?Math.round(done/total*100):0;
- root.innerHTML=`<div class="earning-tile forecast"><div class="k">예상 결정석 수익 · 아직 획득하지 않은 금액 포함</div><div class="v">${compact(expected)} 메소</div></div>
- <div class="earning-equation"><div class="earning-term"><div class="k">획득 결정석</div><strong>${compact(earned)}</strong></div><b class="operator">+</b><div class="earning-term"><div class="k">획득 아이템</div><strong>${compact(sales)}</strong></div><b class="operator">=</b><div class="earning-term result"><div class="k">이번 주 총수익</div><strong>${compact(earned+sales)}</strong></div></div>
- <div class="earning-progress-head"><span>주간 보스 완료 · 결정석 획득 개수</span><span>${done} / ${total}개 · ${percent}%</span></div>
- <div class="earning-progress"><span style="width:${percent}%"></span></div>`;
+ const wTotal=ids.reduce((s,i)=>s+weeklyIds(i).length,0);
+ const wDone=ids.reduce((s,i)=>s+weeklyIds(i).filter(id=>selections[i][id]?.done).length,0);
+ const wExpected=ids.reduce((s,i)=>s+income(i,false),0);
+ const wEarned=ids.reduce((s,i)=>s+realized(i,false),0);
+ const mTotal=ids.reduce((s,i)=>s+monthlyIds(i).length,0);
+ const mDone=ids.reduce((s,i)=>s+monthlyIds(i).filter(id=>selections[i][id]?.done).length,0);
+ const mExpected=ids.reduce((s,i)=>s+income(i,true),0);
+ const mEarned=ids.reduce((s,i)=>s+realized(i,true),0);
+ const sales=dropSales(ids);
+ const wp=wTotal?Math.round(wDone/wTotal*100):0;
+ const mp=mTotal?Math.round(mDone/mTotal*100):0;
+ root.innerHTML=`<div class="earning-periods">
+ <section class="earning-period earning-period--week" aria-label="주간 보스 수익">
+ <div class="earning-period-title">주간 보스 수익</div>
+ <div class="earning-tile forecast"><div class="k">예상 주간 결정석 · 미획득 포함</div><div class="v">${compact(wExpected)} 메소</div></div>
+ <div class="earning-equation"><div class="earning-term"><div class="k">획득 결정석</div><strong>${compact(wEarned)}</strong></div><b class="operator">+</b><div class="earning-term"><div class="k">획득 아이템</div><strong>${compact(sales)}</strong></div><b class="operator">=</b><div class="earning-term result"><div class="k">주간 총수익</div><strong>${compact(wEarned+sales)}</strong></div></div>
+ <div class="earning-progress-head"><span>주간 보스 완료</span><span>${wDone} / ${wTotal}개 · ${wp}%</span></div>
+ <div class="earning-progress"><span style="width:${wp}%"></span></div>
+ </section>
+ <section class="earning-period earning-period--month" aria-label="월간 보스 수익">
+ <div class="earning-period-title">월간 보스 수익</div>
+ <div class="earning-tile forecast"><div class="k">예상 월간 결정석 · 미획득 포함</div><div class="v">${compact(mExpected)} 메소</div></div>
+ <div class="earning-tile emphasis"><div class="k">획득 월간 결정석</div><div class="v">${compact(mEarned)} 메소</div></div>
+ <div class="earning-progress-head"><span>월간 보스 완료</span><span>${mDone} / ${mTotal}개 · ${mp}%</span></div>
+ <div class="earning-progress"><span style="width:${mp}%"></span></div>
+ </section>
+ </div>`;
  renderItemRegister();
  document.getElementById('earnings-characters').innerHTML='<div class="earnings-char-title">캐릭터별 주간 진행</div>'+ids.map(i=>`<div class="earnings-char-row"><strong>${escapeHTML(characters[i].name)}</strong><span>${weeklyIds(i).filter(id=>selections[i][id]?.done).length}/${weeklyIds(i).length} · ${compact(realized(i))}</span></div>`).join('');
 }
