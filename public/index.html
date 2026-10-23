@@ -476,6 +476,37 @@ body {font-size:12.5px;font-weight:560;line-height:1.42;color:#22242a;}
 .earning-period .earning-progress-head{font-size:11px;gap:8px}
 .earning-period--month .earning-progress>span{background:#c99540}
 .earning-progress--revenue>span{background:#23976d}
+
+/* MAPLERICH_PERIOD_HISTORY_V1 */
+.period-note{font-size:11px;color:#6c7482;margin:5px 0 12px;line-height:1.6}
+.period-history-open{width:100%;border:1px solid #d4dae7;background:#f6f8ff;color:#324f8e;font-weight:800;border-radius:9px;padding:11px;margin:5px 0 10px}
+.period-history-open:hover{background:#eaf0ff}
+.period-history-overlay{position:fixed;inset:0;z-index:9999;background:rgba(20,24,35,.62);display:flex;align-items:center;justify-content:center;padding:14px}
+.period-history-overlay[hidden]{display:none!important}
+.period-history-dialog{width:min(900px,100%);max-height:92vh;overflow:auto;background:white;border-radius:15px;padding:22px;box-shadow:0 15px 70px #0004}
+.period-history-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.period-history-head h2{font-size:20px;margin:0}
+.period-history-close{border:0;background:#f0f1f4;border-radius:8px;padding:6px 11px;font-size:22px}
+.period-history-toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0}
+.period-history-toolbar select{min-width:0;flex:1;border:1px solid #d9dce5;border-radius:8px;padding:9px;background:#fff}
+.period-history-toolbar button{border:1px solid #d9dce5;background:#fff;border-radius:8px;padding:9px 13px;font-weight:700}
+.period-history-toolbar button.is-current{background:#eaf1ff;border-color:#9db8eb;color:#1c4a93}
+.period-history-meta{padding:11px;background:#f7f8fb;border-radius:9px;color:#566171;margin:10px 0}
+.period-history-character{border:1px solid #e1e4eb;border-radius:10px;padding:12px;margin:12px 0}
+.period-history-character h3{margin:0 0 9px;font-size:14px}
+.period-history-boss{display:grid;grid-template-columns:minmax(100px,1fr) minmax(78px,110px) 55px 55px minmax(80px,auto);align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid #edf0f3}
+.period-history-boss:last-child{border:0}
+.period-history-boss select,.period-history-boss input[type=number],.period-history-item input{min-width:0;width:100%;border:1px solid #dce0e7;border-radius:6px;padding:6px;background:#fff}
+.period-history-boss .history-boss-name{font-size:12px;font-weight:700}
+.period-history-boss label{display:flex;align-items:center;justify-content:center;gap:4px}
+.period-history-boss .history-amount{text-align:right;white-space:nowrap;font-weight:700}
+.period-history-add{display:flex;gap:7px;margin:12px 0}
+.period-history-add select{flex:1;min-width:0;border:1px solid #dce0e7;border-radius:8px;padding:8px}
+.period-history-add button,.period-history-item button{border:1px solid #dce0e7;border-radius:8px;background:#fff;padding:7px 11px}
+.period-history-item{display:grid;grid-template-columns:22px minmax(75px,1fr) minmax(80px,120px) 30px;gap:8px;align-items:center;margin:7px 0}
+.period-history-summary{font-weight:800;color:#245c8e;margin:10px 0}
+.period-history-empty{padding:30px 10px;text-align:center;color:#7a8290;line-height:1.8}
+@media(max-width:560px){.period-history-dialog{padding:14px}.period-history-boss{grid-template-columns:minmax(90px,1fr) minmax(80px,1fr) 42px 48px;gap:5px}.period-history-boss .history-amount{grid-column:1/-1;text-align:left}.period-history-toolbar select{flex-basis:100%}}
 </style></head><body><main class="shell">
 <header class="app-header"><nav class="view-tabs" aria-label="관리 화면"><button class="view-tab is-current" id="tab-boss" type="button" data-view="boss" aria-pressed="true"><span aria-hidden="true">🔮</span> 보스 수익</button><button class="view-tab" id="tab-memo" type="button" data-view="memo" aria-pressed="false"><span aria-hidden="true">▤</span> 메모</button></nav><span class="app-header-note">보스와 메모를 캐릭터별로 관리해요</span></header>
 <div class="cols" id="boss-view">
@@ -491,11 +522,19 @@ body {font-size:12.5px;font-weight:560;line-height:1.42;color:#22242a;}
 <div class="boss-grid-header"><span>보스</span><span>난이도</span><span>파티원</span><span>내 결정석 수익</span><span>클리어 여부</span></div><div id="bossrows"></div><div class="bottomline">보스별 금액: 사용자가 제공한 가격표 기준 · 실시간 연동 아님</div></section>
 </div><aside class="panel earnings-panel" aria-label="주간 수익 및 진행 현황">
  <div class="earnings-heading"><span class="panel-index">04 수익 대시보드</span><strong>주간 · 월간 수익 현황</strong></div>
+ <div id="period-current-label" class="period-note"></div>
+ <button type="button" id="open-period-history" class="period-history-open">지난 주간 · 월간 기록 조회 및 수정 →</button>
  <div id="earnings-summary"></div>
  
  <div id="earnings-characters"></div>
  <section class="item-register-panel" aria-label="획득 아이템 등록"><div class="item-register-heading"><strong>05 획득 아이템 등록</strong><span>선택한 캐릭터의 획득 아이템과 판매 금액</span></div><div id="item-register-list"></div></section>
 </aside></div>
+<div id="period-history-overlay" class="period-history-overlay" hidden>
+ <div class="period-history-dialog" role="dialog" aria-modal="true" aria-labelledby="period-history-title">
+ <div class="period-history-head"><h2 id="period-history-title">지난 보스 기록</h2><button type="button" id="period-history-close" class="period-history-close" aria-label="닫기">×</button></div>
+ <div class="period-history-toolbar"><button type="button" id="history-week-tab" class="is-current">주간 기록</button><button type="button" id="history-month-tab">월간 기록</button><select id="history-period-select" aria-label="기록 기간 선택"></select></div>
+ <div id="period-history-content"></div>
+ </div></div>
 <div id="drop-modal" class="drop-overlay" hidden><div class="drop-dialog" role="dialog" aria-modal="true" aria-labelledby="drop-title"><div class="drop-head"><strong id="drop-title">획득 아이템</strong><button type="button" id="drop-close" aria-label="닫기">×</button></div><p>획득한 아이템을 선택하고 판매 가격을 입력하세요. 아이템 이미지는 제공해 주신 자료를 사용합니다.</p><div id="drop-list"></div><button type="button" id="drop-add">+ 아이템 추가</button><div class="drop-foot"><span id="drop-total"></span><button type="button" id="drop-save">저장</button></div></div></div>
 <section id="memo-view" class="memo-layout" aria-label="캐릭터별 메모장" hidden>
   <aside class="panel memo-side">
@@ -542,9 +581,67 @@ const defaultSelections=[
 ];
 function initialState(){return defaultSelections.map(a=>Object.fromEntries(a.filter(([id,diff])=>BOSS_BY_ID[id]&&BOSS_BY_ID[id].prices[diff]!=null).map(([id,diff,party])=>[id,{diff,party}]))) }
 let selections=initialState(),current=0,filter='all';const drafts=characters.map(()=>({}));const statInclude=characters.map(()=>true);
-function saveLocal(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({characters,selections,statInclude,current}));}catch(e){notify('브라우저 저장 공간이 부족하거나 저장이 차단됐어요.');}}
-function loadLocal(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;const st=JSON.parse(raw);if(!Array.isArray(st.characters)||!Array.isArray(st.selections)||st.characters.length!==st.selections.length)return;characters.splice(0,characters.length,...st.characters.filter(c=>c&&typeof c.name==='string'));selections=st.selections.map(x=>x&&typeof x==='object'?x:{});if(selections.length!==characters.length){selections=characters.map(()=>({}));}drafts.splice(0,drafts.length,...characters.map(()=>({})));statInclude.splice(0,statInclude.length,...characters.map((_,i)=>st.statInclude?.[i]!==false));current=Math.min(Math.max(0,Number(st.current)||0),Math.max(0,characters.length-1));}catch(e){/* preserve defaults if malformed */}}
+
+/* All calendar boundaries are computed in Asia/Seoul, independent of browser timezone. */
+const kstParts=(date=new Date())=>{
+ const values=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date).filter(p=>p.type!=='literal').map(p=>[p.type,Number(p.value)]));
+ return {year:values.year,month:values.month,day:values.day};
+};
+const dateStringUTC=d=>d.toISOString().slice(0,10);
+function kstWeekKey(date=new Date()){
+ const {year,month,day}=kstParts(date),utc=new Date(Date.UTC(year,month-1,day));
+ utc.setUTCDate(utc.getUTCDate()-(utc.getUTCDay()-4+7)%7);
+ return dateStringUTC(utc);
+}
+function kstMonthKey(date=new Date()){const p=kstParts(date);return p.year+'-'+String(p.month).padStart(2,'0');}
+const charPeriodId=c=>(String(c.world||'')+'::'+String(c.name||'').trim().toLowerCase());
+let history={week:{},month:{}},activePeriods={week:kstWeekKey(),month:kstMonthKey()};
+function saveLocal(){
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify({characters,selections,statInclude,current,history,activePeriods}));}
+ catch(e){notify('기록 저장에 실패했어요. 브라우저 저장 공간을 확인해 주세요.');}
+}
+function loadLocal(){
+ try{
+ const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;
+ const st=JSON.parse(raw);
+ if(st.history&&typeof st.history==='object')history={week:st.history.week||{},month:st.history.month||{}};
+ if(st.activePeriods&&typeof st.activePeriods==='object')activePeriods={week:st.activePeriods.week||kstWeekKey(),month:st.activePeriods.month||kstMonthKey()};
+ if(!Array.isArray(st.characters)||!Array.isArray(st.selections)||st.characters.length!==st.selections.length)return;
+ characters.splice(0,characters.length,...st.characters.filter(c=>c&&typeof c.name==='string'));
+ selections=st.selections.map(x=>x&&typeof x==='object'?x:{});
+ if(selections.length!==characters.length)selections=characters.map(()=>({}));
+ drafts.splice(0,drafts.length,...characters.map(()=>({})));
+ statInclude.splice(0,statInclude.length,...characters.map((_,i)=>st.statInclude?.[i]!==false));
+ current=Math.min(Math.max(0,Number(st.current)||0),Math.max(0,characters.length-1));
+ }catch(e){/* keep existing data if malformed */}
+}
+function snapshotPeriod(type){
+ const monthly=type==='month';
+ return {savedAt:new Date().toISOString(),characters:characters.map((c,i)=>({
+ id:charPeriodId(c),name:c.name,world:c.world||'',
+ bosses:Object.fromEntries(Object.entries(selections[i]||{}).filter(([id])=>BOSS_BY_ID[+id]&&Boolean(BOSS_BY_ID[+id].monthly)===monthly).map(([id,st])=>[id,{diff:st.diff,party:st.party||1,done:Boolean(st.done)}])),
+ items:monthly?[]:(typeof itemsFor==='function'?itemsFor(i).map(x=>({...x})):[])
+ }))};
+}
+function archiveAndRollover(){
+ const nextWeek=kstWeekKey(),nextMonth=kstMonthKey();
+ let changed=false;
+ for(const [type,next] of [['week',nextWeek],['month',nextMonth]]){
+  const old=activePeriods[type];
+  if(old===next)continue;
+  if(old&&old<next){
+   history[type][old]=snapshotPeriod(type);
+   for(const selected of selections)for(const [id,st] of Object.entries(selected||{})){
+    if(BOSS_BY_ID[+id]&&Boolean(BOSS_BY_ID[+id].monthly)===(type==='month'))delete st.done;
+   }
+  }
+  activePeriods[type]=next;changed=true;
+ }
+ if(changed)saveLocal();
+ return changed;
+}
 loadLocal();
+
 let isSearchingCharacter=false;
 async function addCharacter(){
  const input=document.getElementById('findchar');
@@ -676,7 +773,27 @@ function refreshDropTotal(){const sum=[...document.querySelectorAll('.drop-entry
 function closeDrops(){document.getElementById('drop-modal').hidden=true;dropTarget=null}
 document.getElementById('drop-close').onclick=closeDrops;document.getElementById('drop-modal').addEventListener('click',e=>{if(e.target.id==='drop-modal')closeDrops()});document.getElementById('drop-add').onclick=()=>appendDrop();document.getElementById('drop-save').onclick=()=>{if(!dropTarget)return;const obj=allDrops();obj[itemKey(dropTarget.i)]=[...document.querySelectorAll('.drop-entry')].map(row=>({name:row.querySelector('.drop-name').value.trim(),price:Math.max(0,Math.round((Number(row.querySelector('.drop-price').value)||0)*100000000)),checked:row.querySelector('.drop-checked').checked})).filter(x=>x.name||x.price);try{localStorage.setItem(DROP_KEY,JSON.stringify(obj));closeDrops();renderAll();notify('아이템 기록을 저장했어요.')}catch(e){notify('아이템 저장에 실패했어요.')}};
 
-function weekKey(){const d=new Date(),u=new Date(d.getFullYear(),d.getMonth(),d.getDate());u.setDate(u.getDate()-(u.getDay()+3)%7);return [u.getFullYear(),String(u.getMonth()+1).padStart(2,'0'),String(u.getDate()).padStart(2,'0')].join('-');}
+function weekKey(){return kstWeekKey();}
+/* Keep existing item entries made under the older Monday-based key. */
+function migrateLegacyItemKeys(){
+ const mark='maple-boss-week-key-migrated-v1';
+ try{
+  if(localStorage.getItem(mark))return;
+  const p=kstParts(),monday=new Date(Date.UTC(p.year,p.month-1,p.day));
+  monday.setUTCDate(monday.getUTCDate()-(monday.getUTCDay()+6)%7);
+  const oldKey=dateStringUTC(monday),newKey=kstWeekKey();
+  const data=allDrops();let dirty=false;
+  for(const c of characters){
+   const suffix='::'+(c.world||'')+'::'+(c.name||'')+'::items';
+   const from=oldKey+suffix,to=newKey+suffix;
+   if(data[from]&&!data[to]){data[to]=data[from];dirty=true;}
+  }
+  if(dirty)localStorage.setItem(DROP_KEY,JSON.stringify(data));
+  localStorage.setItem(mark,'1');
+ }catch(e){console.warn('Legacy item migration failed',e);}
+}
+migrateLegacyItemKeys();
+archiveAndRollover();
 function getSales(){try{return JSON.parse(localStorage.getItem(SALES_KEY)||'{}')}catch(e){return {}}}
 function salesAmount(){return Math.max(0,Number(getSales()[weekKey()])||0)}
 function realized(i,month=false){return Object.entries(selections[i]||{}).reduce((sum,[id,st])=>{const b=BOSS_BY_ID[+id];if(!b||Boolean(b.monthly)!==month||!st.done)return sum;return sum+Math.floor((price(b,st.diff)||0)/Math.max(1,st.party));},0)}
@@ -902,9 +1019,117 @@ document.getElementById('memo-lightbox-close').addEventListener('click',closeMem
 document.getElementById('memo-lightbox').addEventListener('click',e=>{if(e.target.id==='memo-lightbox')closeMemoLightbox();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('memo-lightbox').hidden)closeMemoLightbox();});
 
-function renderAll(){renderCharacters();renderStats();renderBosses();renderEarnings();if(activeView==='memo')renderMemoSidebar();}
+function renderAll(){renderCharacters();renderStats();renderBosses();renderEarnings();renderPeriodLabel();if(activeView==='memo')renderMemoSidebar();}
+
+/* Archived records are editable without modifying the live boss selections. */
+let historyView={type:'week',key:''};
+function historyPeriodLabel(type,key){
+ if(type==='month')return key.replace('-','년 ')+'월';
+ const end=new Date(key+'T00:00:00Z');end.setUTCDate(end.getUTCDate()+6);
+ return key+' ~ '+dateStringUTC(end);
+}
+function historyAmount(bosses){
+ return Object.entries(bosses||{}).reduce((sum,[id,st])=>{
+ const b=BOSS_BY_ID[+id];return sum+(b&&st.done?Math.floor((price(b,st.diff)||0)/Math.max(1,Number(st.party)||1)):0);
+ },0);
+}
+function historyCharacterItemsSum(c){
+ return (c.items||[]).reduce((sum,x)=>sum+(x.checked!==false?Math.max(0,Number(x.price)||0):0),0);
+}
+function renderHistory(){
+ const overlay=document.getElementById('period-history-overlay');
+ if(overlay.hidden)return;
+ const type=historyView.type,records=history[type]||{},keys=Object.keys(records).sort().reverse();
+ const sel=document.getElementById('history-period-select');
+ if(!keys.includes(historyView.key))historyView.key=keys[0]||'';
+ sel.innerHTML=keys.map(k=>'<option value="'+escapeHTML(k)+'">'+escapeHTML(historyPeriodLabel(type,k))+'</option>').join('');
+ sel.disabled=!keys.length;sel.value=historyView.key;
+ document.getElementById('history-week-tab').classList.toggle('is-current',type==='week');
+ document.getElementById('history-month-tab').classList.toggle('is-current',type==='month');
+ const root=document.getElementById('period-history-content');
+ if(!keys.length){root.innerHTML='<div class="period-history-empty">아직 보관된 '+(type==='week'?'주간':'월간')+' 기록이 없어요.<br>다음 '+(type==='week'?'목요일 00:00':'매월 1일 00:00')+'에 이전 기간의 기록이 자동 보관됩니다.</div>';return;}
+ const snap=records[historyView.key];
+ if(!snap||!Array.isArray(snap.characters)){root.innerHTML='<div class="period-history-empty">이 기간의 기록을 읽을 수 없어요.</div>';return;}
+ const crystal=snap.characters.reduce((sum,c)=>sum+historyAmount(c.bosses),0);
+ const itemTotal=type==='week'?snap.characters.reduce((sum,c)=>sum+historyCharacterItemsSum(c),0):0;
+ root.innerHTML='<div class="period-history-meta"><strong>'+escapeHTML(historyPeriodLabel(type,historyView.key))+'</strong> · 획득 결정석 '+compact(crystal)+' 메소'+(type==='week'?' · 아이템 '+compact(itemTotal)+' 메소 · 총 '+compact(crystal+itemTotal)+' 메소':'')+'<br>체크·난이도·파티 인원과 지난주 아이템을 수정하면 즉시 저장됩니다. 현재 기록에는 영향을 주지 않아요.</div>'+
+ snap.characters.map((c,ci)=>{
+  const bosses=Object.entries(c.bosses||{}).filter(([id])=>BOSS_BY_ID[+id]).sort((a,b)=>BOSS_BY_ID[+a[0]].order-BOSS_BY_ID[+b[0]].order);
+  const available=BOSSES.filter(b=>Boolean(b.monthly)===(type==='month')&&!c.bosses?.[b.id]);
+  return '<section class="period-history-character"><h3>'+escapeHTML(c.name)+' <span style="font-weight:400;color:#889">· '+escapeHTML(c.world)+'</span></h3>'+
+  (bosses.length?bosses.map(([id,st])=>{
+   const b=BOSS_BY_ID[+id],options=Object.keys(b.prices).map(d=>'<option value="'+d+'" '+(d===st.diff?'selected':'')+'>'+d+'</option>').join('');
+   return '<div class="period-history-boss" data-history-char="'+ci+'" data-history-boss="'+id+'"><span class="history-boss-name">'+escapeHTML(b.name)+'</span><select data-history-field="diff" aria-label="난이도">'+options+'</select><input type="number" data-history-field="party" aria-label="파티 인원" min="1" max="6" value="'+Math.max(1,Math.min(6,Number(st.party)||1))+'"><label><input type="checkbox" data-history-field="done" '+(st.done?'checked':'')+'> 완료</label><span class="history-amount">'+compact(st.done?Math.floor((price(b,st.diff)||0)/Math.max(1,Number(st.party)||1)):0)+'</span></div>';
+  }).join(''):'<p style="color:#89919b">선택된 보스가 없어요.</p>')+
+  (available.length?'<div class="period-history-add"><select data-history-add-select="'+ci+'" aria-label="지난 기록에 보스 추가">'+available.map(b=>'<option value="'+b.id+'">'+escapeHTML(b.name)+'</option>').join('')+'</select><button type="button" data-history-add="'+ci+'">+ 보스 추가</button></div>':'')+
+  (type==='week'?'<details><summary>지난주 획득 아이템 · '+compact(historyCharacterItemsSum(c))+' 메소 (수정)</summary>'+
+  (c.items||[]).map((x,ii)=>'<div class="period-history-item" data-history-item="'+ii+'" data-history-item-char="'+ci+'"><input type="checkbox" data-history-item-field="checked" '+(x.checked!==false?'checked':'')+' aria-label="획득"><input type="text" data-history-item-field="name" value="'+escapeHTML(x.name||'')+'" aria-label="아이템 이름"><input type="number" data-history-item-field="price" value="'+Math.max(0,Number(x.price)||0)+'" min="0" step="1" aria-label="가격 메소"><button type="button" data-history-item-remove="'+ii+'" data-history-item-char="'+ci+'" aria-label="아이템 삭제">×</button></div>').join('')+
+  '<button type="button" data-history-item-add="'+ci+'" style="margin:7px 0;padding:7px;border:1px solid #ddd;border-radius:7px;background:#fff">+ 아이템 추가</button></details>':'')+
+  '</section>';
+ }).join('');
+}
+function openHistory(){
+ archiveAndRollover();
+ document.getElementById('period-history-overlay').hidden=false;
+ historyView={type:'week',key:''};renderHistory();
+}
+function closeHistory(){document.getElementById('period-history-overlay').hidden=true;}
+document.getElementById('open-period-history').addEventListener('click',openHistory);
+document.getElementById('period-history-close').addEventListener('click',closeHistory);
+document.getElementById('period-history-overlay').addEventListener('click',e=>{if(e.target.id==='period-history-overlay')closeHistory();});
+document.getElementById('history-week-tab').addEventListener('click',()=>{historyView={type:'week',key:''};renderHistory();});
+document.getElementById('history-month-tab').addEventListener('click',()=>{historyView={type:'month',key:''};renderHistory();});
+document.getElementById('history-period-select').addEventListener('change',e=>{historyView.key=e.target.value;renderHistory();});
+document.getElementById('period-history-content').addEventListener('change',e=>{
+ const target=e.target;
+ if(target.dataset.historyField){
+  const row=target.closest('[data-history-boss]'),ci=Number(row.dataset.historyChar),id=row.dataset.historyBoss;
+  const st=history[historyView.type][historyView.key].characters[ci].bosses[id];
+  if(target.dataset.historyField==='done')st.done=target.checked;
+  if(target.dataset.historyField==='diff')st.diff=target.value;
+  if(target.dataset.historyField==='party')st.party=Math.max(1,Math.min(6,Number(target.value)||1));
+  saveLocal();renderHistory();return;
+ }
+ if(target.dataset.historyItemField){
+  const row=target.closest('[data-history-item]'),ci=Number(row.dataset.historyItemChar),ii=Number(row.dataset.historyItem);
+  const x=history.week[historyView.key].characters[ci].items[ii];
+  if(target.dataset.historyItemField==='checked')x.checked=target.checked;
+  if(target.dataset.historyItemField==='name')x.name=target.value;
+  if(target.dataset.historyItemField==='price')x.price=Math.max(0,Number(target.value)||0);
+  saveLocal();renderHistory();
+ }
+});
+document.getElementById('period-history-content').addEventListener('click',e=>{
+ const add=e.target.closest('[data-history-add]');
+ const itemAdd=e.target.closest('[data-history-item-add]');
+ const itemRemove=e.target.closest('[data-history-item-remove]');
+ const snap=history[historyView.type][historyView.key];if(!snap)return;
+ if(add){
+  const ci=Number(add.dataset.historyAdd),select=document.querySelector('[data-history-add-select="'+ci+'"]');
+  const id=Number(select?.value),b=BOSS_BY_ID[id];
+  if(!b)return;
+  const bosses=snap.characters[ci].bosses;
+  if(Object.keys(bosses).length>=(historyView.type==='month'?MAX_MONTHLY:MAX_WEEKLY)){notify('선택 가능한 보스 수를 초과했어요.');return;}
+  bosses[id]={diff:Object.keys(b.prices)[0],party:1,done:false};
+ }else if(itemAdd){
+  snap.characters[Number(itemAdd.dataset.historyItemAdd)].items.push({name:'',price:0,checked:true});
+ }else if(itemRemove){
+  snap.characters[Number(itemRemove.dataset.historyItemChar)].items.splice(Number(itemRemove.dataset.historyItemRemove),1);
+ }else return;
+ saveLocal();renderHistory();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('period-history-overlay').hidden)closeHistory();});
+function renderPeriodLabel(){
+ const el=document.getElementById('period-current-label');if(!el)return;
+ el.textContent='주간 '+historyPeriodLabel('week',activePeriods.week)+' (목 00:00 초기화) · 월간 '+historyPeriodLabel('month',activePeriods.month)+' (매월 1일 초기화) · KST';
+}
+/* A visible tab rolls over shortly after midnight; an inactive tab catches up on focus. */
+setInterval(()=>{if(archiveAndRollover()){renderAll();renderHistory();}},15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&archiveAndRollover()){renderAll();renderHistory();}});
+window.addEventListener('focus',()=>{if(archiveAndRollover()){renderAll();renderHistory();}});
+
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===filter));renderBosses();}));
-document.getElementById('reset').addEventListener('click',()=>{if(!confirm('캐릭터와 보스 선택을 예시 초기 상태로 되돌릴까요?'))return;try{localStorage.removeItem(STORAGE_KEY);}catch(e){}location.reload();});
+document.getElementById('reset').addEventListener('click',()=>{if(!confirm('캐릭터와 보스 선택을 예시 초기 상태로 되돌릴까요?'))return;try{localStorage.setItem(STORAGE_KEY,JSON.stringify({history,activePeriods}));}catch(e){}location.reload();});
 document.getElementById('findchar').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addCharacter();}});
 document.getElementById('searchchar').addEventListener('click',addCharacter);
 document.getElementById('jumpstats').addEventListener('click',()=>document.getElementById('stats').scrollIntoView({behavior:'smooth'}));
