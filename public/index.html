@@ -457,7 +457,10 @@ body {font-size:12.5px;font-weight:560;line-height:1.42;color:#22242a;}
 @media(max-width:680px){.drop-dialog{padding:18px 14px}.drop-entry{grid-template-columns:34px 65px minmax(110px,1fr) 26px;gap:6px}.drop-entry .drop-price{grid-column:3;grid-row:2}.drop-entry .drop-remove{grid-column:4;grid-row:1}.drop-picker-menu{width:min(280px,calc(100vw - 24px))}}
 
 /* maplerich monthly-dashboard fix 2026-10 */
-.memo-char-portrait .live{transform:none!important;transform-origin:center center!important}
+.memo-char-portrait .live{transform:scale(1.45)!important;transform-origin:center center!important}
+.memo-char-portrait{overflow:hidden}
+.memo-char-portrait img{max-width:none!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important}
+.memo-char-portrait img.live{transform:scale(1.45)!important;transform-origin:center center!important}
 .memo-char-portrait img{object-fit:contain!important;object-position:center center!important}
 .earning-periods{display:grid;grid-template-columns:minmax(0,1fr);gap:13px}
 .earning-period{min-width:0;border:1px solid #e5e6eb;border-radius:12px;padding:12px;background:#fff}
@@ -472,6 +475,7 @@ body {font-size:12.5px;font-weight:560;line-height:1.42;color:#22242a;}
 .earning-period .earning-term strong{font-size:12px;overflow-wrap:anywhere}
 .earning-period .earning-progress-head{font-size:11px;gap:8px}
 .earning-period--month .earning-progress>span{background:#c99540}
+.earning-progress--revenue>span{background:#23976d}
 </style></head><body><main class="shell">
 <header class="app-header"><nav class="view-tabs" aria-label="관리 화면"><button class="view-tab is-current" id="tab-boss" type="button" data-view="boss" aria-pressed="true"><span aria-hidden="true">🔮</span> 보스 수익</button><button class="view-tab" id="tab-memo" type="button" data-view="memo" aria-pressed="false"><span aria-hidden="true">▤</span> 메모</button></nav><span class="app-header-note">보스와 메모를 캐릭터별로 관리해요</span></header>
 <div class="cols" id="boss-view">
@@ -693,22 +697,23 @@ function renderEarnings(){
  const wEarned=ids.reduce((s,i)=>s+realized(i,false),0);
  const mTotal=ids.reduce((s,i)=>s+monthlyIds(i).length,0);
  const mDone=ids.reduce((s,i)=>s+monthlyIds(i).filter(id=>selections[i][id]?.done).length,0);
- const mExpected=ids.reduce((s,i)=>s+income(i,true),0);
  const mEarned=ids.reduce((s,i)=>s+realized(i,true),0);
  const sales=dropSales(ids);
  const wp=wTotal?Math.round(wDone/wTotal*100):0;
  const mp=mTotal?Math.round(mDone/mTotal*100):0;
+ const revenuePct=wExpected?Math.min(100,Math.round(wEarned/wExpected*100)):0;
  root.innerHTML=`<div class="earning-periods">
  <section class="earning-period earning-period--week" aria-label="주간 보스 수익">
  <div class="earning-period-title">주간 보스 수익</div>
  <div class="earning-tile forecast"><div class="k">예상 주간 결정석 · 미획득 포함</div><div class="v">${compact(wExpected)} 메소</div></div>
  <div class="earning-equation"><div class="earning-term"><div class="k">획득 결정석</div><strong>${compact(wEarned)}</strong></div><b class="operator">+</b><div class="earning-term"><div class="k">획득 아이템</div><strong>${compact(sales)}</strong></div><b class="operator">=</b><div class="earning-term result"><div class="k">주간 총수익</div><strong>${compact(wEarned+sales)}</strong></div></div>
+ <div class="earning-progress-head"><span>주간 결정석 수익 달성률</span><span>${compact(wEarned)} / ${compact(wExpected)} · ${revenuePct}%</span></div>
+ <div class="earning-progress earning-progress--revenue"><span style="width:${revenuePct}%"></span></div>
  <div class="earning-progress-head"><span>주간 보스 완료</span><span>${wDone} / ${wTotal}개 · ${wp}%</span></div>
  <div class="earning-progress"><span style="width:${wp}%"></span></div>
  </section>
  <section class="earning-period earning-period--month" aria-label="월간 보스 수익">
  <div class="earning-period-title">월간 보스 수익</div>
- <div class="earning-tile forecast"><div class="k">예상 월간 결정석 · 미획득 포함</div><div class="v">${compact(mExpected)} 메소</div></div>
  <div class="earning-tile emphasis"><div class="k">획득 월간 결정석</div><div class="v">${compact(mEarned)} 메소</div></div>
  <div class="earning-progress-head"><span>월간 보스 완료</span><span>${mDone} / ${mTotal}개 · ${mp}%</span></div>
  <div class="earning-progress"><span style="width:${mp}%"></span></div>
